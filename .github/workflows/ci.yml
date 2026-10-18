@@ -1,0 +1,26 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Build and test, flags: "" }
+          - { name: ASan + UBSan, flags: "-g3 -fsanitize=address,undefined" }
+          - { name: ThreadSanitizer, flags: "-g3 -fsanitize=thread" }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make EXTRA_FLAGS="${{ matrix.flags }}"
+      - name: Test
+        env:
+          TSAN_OPTIONS: halt_on_error=1:exitcode=66
+          UBSAN_OPTIONS: halt_on_error=1
+        run: |
+          sudo sysctl -w vm.mmap_rnd_bits=28 || true
+          bash tests/smoke.sh

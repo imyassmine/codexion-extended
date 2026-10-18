@@ -1,0 +1,14 @@
+# Build artefacts
+codexion
+codexion_processes
+coders/obj/
+coders_processes/obj/
+*.o
+
+# Test / debug artefacts
+tests/__pycache__/
+*.log
+
+# Local tooling
+.venv-norm/
+.uv-cache/
